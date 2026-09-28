@@ -1,0 +1,2 @@
+# Thu vien MQTT dung cho cac bai thuc hanh
+paho-mqtt==2.1.0

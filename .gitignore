@@ -1,0 +1,6 @@
+# Moi truong ao Python (tao lai bang requirements.txt)
+.venv/
+
+# Tep tam va cache cua Python
+__pycache__/
+*.py[cod]
