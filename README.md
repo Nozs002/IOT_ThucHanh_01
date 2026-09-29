@@ -1,137 +1,135 @@
-# Thực hành Python với giao thức MQTT
+# Thực hành Python với giao thức MQTT trên Windows
 
-Repository này dùng cho buổi thực hành lập trình Python với MQTT, gồm các bài tập publish/subscribe, mô phỏng cảm biến và điều khiển thiết bị IoT.
+Repository này dùng cho buổi thực hành lập trình Python với MQTT trên Windows, gồm các nội dung publish/subscribe, mô phỏng cảm biến và điều khiển thiết bị IoT.
 
-Nội dung yêu cầu chi tiết được trình bày trong file [`requirements.md`](requirements.md).
+Xem yêu cầu chi tiết của bài thực hành tại [`requirements.md`](requirements.md).
 
-## 1. Yêu cầu hệ thống
+## 1. Phần mềm cần cài đặt
 
-Trước khi bắt đầu, cần cài đặt:
+Máy tính cần có:
 
+- Windows 10 hoặc Windows 11.
 - Python 3.x.
-- `pip` (thường được cài kèm Python).
-- Git nếu tải dự án từ GitHub.
-- Một MQTT broker, ví dụ Mosquitto, hoặc thông tin của một broker có sẵn.
-- Visual Studio Code hoặc IDE Python bất kỳ.
+- `pip` và `venv` (được cài kèm Python).
+- Git for Windows nếu tải và quản lý dự án bằng Git.
+- Visual Studio Code hoặc một IDE Python bất kỳ.
+- MQTT broker Mosquitto hoặc thông tin broker do giảng viên cung cấp.
 
-Kiểm tra Python và `pip`:
+### Kiểm tra Python
 
-```bash
+Mở PowerShell trong Windows Terminal hoặc Visual Studio Code và chạy:
+
+```powershell
 python --version
 python -m pip --version
 ```
 
-> Trên một số máy macOS/Linux, lệnh Python có thể là `python3` thay vì `python`.
+Nếu Windows không nhận lệnh `python`, hãy cài Python và chọn tùy chọn **Add Python to PATH** trong quá trình cài đặt.
 
 ## 2. Tải mã nguồn
 
-Clone repository từ GitHub:
+Clone repository bằng PowerShell:
 
-```bash
-git clone <DUONG_DAN_GITHUB_CUA_DU_AN>
+```powershell
+git clone https://github.com/Nozs002/IOT_ThucHanh_01.git
 cd IOT_ThucHanh_01
 ```
 
-Nếu không sử dụng Git, có thể tải file ZIP từ GitHub và giải nén vào một thư mục trên máy.
-
 ## 3. Tạo môi trường ảo
 
-Môi trường ảo giúp các thư viện của dự án không ảnh hưởng tới những dự án Python khác.
-
-### Windows PowerShell
+Tại thư mục gốc của dự án, chạy:
 
 ```powershell
 python -m venv .venv
+```
+
+Kích hoạt môi trường ảo trong PowerShell:
+
+```powershell
 .\.venv\Scripts\Activate.ps1
 ```
 
-Nếu PowerShell chặn script kích hoạt, chạy lệnh sau trong cửa sổ PowerShell hiện tại rồi kích hoạt lại:
+### Nếu PowerShell chặn script kích hoạt
+
+Chỉ cho phép chạy script trong cửa sổ PowerShell hiện tại:
 
 ```powershell
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 .\.venv\Scripts\Activate.ps1
 ```
 
-### Windows Command Prompt
+Thiết lập này hết hiệu lực khi đóng cửa sổ PowerShell.
+
+### Kích hoạt bằng Command Prompt
+
+Nếu sử dụng Command Prompt thay cho PowerShell:
 
 ```bat
-python -m venv .venv
 .venv\Scripts\activate.bat
 ```
 
-### macOS/Linux
+## 4. Cài đặt thư viện Python
 
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-```
+Sau khi kích hoạt môi trường ảo, chạy:
 
-Sau khi kích hoạt thành công, tên môi trường `(.venv)` thường xuất hiện ở đầu dòng lệnh.
-
-## 4. Cài đặt thư viện
-
-Khi môi trường ảo đã được kích hoạt, cài toàn bộ thư viện từ `requirements.txt`:
-
-```bash
+```powershell
 python -m pip install -r requirements.txt
 ```
 
-Trên macOS/Linux, nếu không có lệnh `python`, sử dụng:
-
-```bash
-python3 -m pip install -r requirements.txt
-```
-
-Thư viện chính của dự án:
+Dự án hiện sử dụng:
 
 ```text
 paho-mqtt==2.1.0
 ```
 
-Kiểm tra cài đặt:
+Kiểm tra thư viện đã được cài đặt:
 
-```bash
+```powershell
 python -c "import paho.mqtt; print(paho.mqtt.__version__)"
 ```
 
-Nếu kết quả hiển thị `2.1.0`, thư viện đã được cài thành công.
+Nếu kết quả hiển thị `2.1.0`, môi trường đã sẵn sàng.
 
-## 5. Cấu hình MQTT broker
+## 5. Cấu hình MQTT broker trên Windows
 
-Các chương trình Publisher và Subscriber phải sử dụng cùng một broker, cổng và cấu hình xác thực.
+Publisher và Subscriber phải sử dụng cùng địa chỉ broker, cổng và thông tin xác thực.
 
-Các thông số thường dùng:
+Thông số phổ biến khi Mosquitto chạy trên cùng máy:
 
-| Thông số | Ví dụ | Ý nghĩa |
-|---|---|---|
-| Host | `localhost` | Địa chỉ MQTT broker |
-| Port | `1883` | Cổng MQTT không sử dụng TLS |
-| Username | Để trống hoặc theo broker | Tên đăng nhập |
-| Password | Để trống hoặc theo broker | Mật khẩu |
-| Keep Alive | `60` | Thời gian duy trì kết nối, tính bằng giây |
+| Thông số | Giá trị |
+|---|---|
+| Broker host | `localhost` |
+| Broker port | `1883` |
+| Keep alive | `60` giây |
 
-### Lựa chọn A: Mosquitto chạy trên máy cá nhân
+### Cách 1: Cài Mosquitto trên máy
 
-1. Cài đặt Eclipse Mosquitto từ trang chính thức hoặc trình quản lý gói của hệ điều hành.
-2. Khởi động Mosquitto trên cổng mặc định `1883`.
-3. Cấu hình các chương trình Python:
+1. Tải bộ cài Eclipse Mosquitto dành cho Windows.
+2. Chạy bộ cài và hoàn tất quá trình cài đặt.
+3. Mở PowerShell tại thư mục cài Mosquitto, thường là:
+
+```powershell
+cd "C:\Program Files\mosquitto"
+```
+
+4. Khởi động broker ở chế độ hiển thị log:
+
+```powershell
+.\mosquitto.exe -v
+```
+
+5. Giữ cửa sổ này chạy trong khi thử nghiệm các chương trình Python.
+
+Cấu hình tương ứng trong mã Python:
 
 ```python
 MQTT_BROKER = "localhost"
 MQTT_PORT = 1883
 ```
 
-Để chạy broker ở chế độ hiển thị log:
+### Cách 2: Sử dụng broker do giảng viên cung cấp
 
-```bash
-mosquitto -v
-```
-
-> Cách khởi động dịch vụ Mosquitto có thể khác nhau tùy hệ điều hành và cách cài đặt.
-
-### Lựa chọn B: Broker do giảng viên cung cấp
-
-Cập nhật địa chỉ, cổng, tên đăng nhập và mật khẩu trong các file Python theo thông tin được cung cấp:
+Cập nhật các thông số trong chương trình theo thông tin được cung cấp:
 
 ```python
 MQTT_BROKER = "dia-chi-broker"
@@ -140,7 +138,7 @@ MQTT_USERNAME = "ten-dang-nhap"
 MQTT_PASSWORD = "mat-khau"
 ```
 
-Nếu broker yêu cầu xác thực, cấu hình client trước khi kết nối:
+Nếu broker yêu cầu xác thực, thiết lập tài khoản trước khi kết nối:
 
 ```python
 client.username_pw_set(MQTT_USERNAME, MQTT_PASSWORD)
@@ -148,7 +146,7 @@ client.username_pw_set(MQTT_USERNAME, MQTT_PASSWORD)
 
 Không đưa mật khẩu thật lên GitHub. Nên sử dụng biến môi trường hoặc file cấu hình cục bộ đã được thêm vào `.gitignore`.
 
-## 6. Các topic sử dụng
+## 6. Các topic MQTT của bài thực hành
 
 | Bài | Topic | Mục đích |
 |---|---|---|
@@ -157,111 +155,107 @@ Không đưa mật khẩu thật lên GitHub. Nên sử dụng biến môi trư�
 | 3 | `iot/lab/light01/cmd` | Gửi lệnh điều khiển đèn |
 | 3 | `iot/lab/light01/status` | Phản hồi trạng thái đèn |
 
-## 7. Cách chạy chương trình
+## 7. Chạy các chương trình
 
-Luôn chạy Subscriber hoặc thiết bị nhận lệnh trước, sau đó mới chạy Publisher hoặc ứng dụng điều khiển.
+Mỗi chương trình cần chạy trong một cửa sổ PowerShell riêng. Hãy kích hoạt `.venv` trong từng cửa sổ trước khi chạy chương trình:
 
-### Bài 1
+```powershell
+.\.venv\Scripts\Activate.ps1
+```
 
-Mở terminal thứ nhất:
+Luôn chạy Subscriber hoặc thiết bị nhận lệnh trước, sau đó chạy Publisher hoặc Controller.
 
-```bash
+### Bài 1: Publisher và Subscriber cơ bản
+
+Terminal thứ nhất:
+
+```powershell
 python subscriber_bai1.py
 ```
 
-Mở terminal thứ hai:
+Terminal thứ hai:
 
-```bash
+```powershell
 python publisher_bai1.py
 ```
 
-### Bài 2
+### Bài 2: Cảm biến nhiệt độ và độ ẩm
 
-Mở terminal thứ nhất:
+Terminal thứ nhất:
 
-```bash
+```powershell
 python monitor_subscriber_bai2.py
 ```
 
-Mở terminal thứ hai:
+Terminal thứ hai:
 
-```bash
+```powershell
 python sensor_publisher_bai2.py
 ```
 
-### Bài 3
+### Bài 3: Điều khiển đèn thông minh
 
-Mở terminal thứ nhất:
+Terminal thứ nhất:
 
-```bash
+```powershell
 python device_bai3.py
 ```
 
-Mở terminal thứ hai:
+Terminal thứ hai:
 
-```bash
+```powershell
 python controller_bai3.py
 ```
 
-> Các file chương trình cần được tạo đầy đủ trước khi thực hiện các lệnh trên.
+Nhấn `Ctrl+C` để dừng chương trình đang chạy liên tục. Với Controller, có thể nhập `EXIT` nếu chức năng này đã được cài đặt.
 
-Nhấn `Ctrl+C` để dừng một chương trình đang chạy liên tục. Với chương trình Controller, có thể nhập `EXIT` nếu chức năng này đã được cài đặt.
+> Các file Python cần được tạo đầy đủ trước khi thực hiện các lệnh trên.
 
 ## 8. Thoát môi trường ảo
 
-Sau khi hoàn thành, chạy:
+Chạy lệnh sau khi hoàn thành:
 
-```bash
+```powershell
 deactivate
 ```
 
-## 9. Cài đặt dự án trên máy khác
+## 9. Cài đặt dự án trên một máy Windows khác
 
-Không sao chép thư mục `.venv` sang máy khác vì môi trường ảo phụ thuộc vào hệ điều hành và đường dẫn cài đặt. Chỉ cần sao chép hoặc clone repository, sau đó chạy lại:
+Không sao chép thư mục `.venv` sang máy khác. Môi trường ảo cần được tạo lại trên từng máy từ file `requirements.txt`.
 
-### Windows PowerShell
+Sau khi clone hoặc sao chép repository, mở PowerShell trong thư mục dự án và chạy:
 
 ```powershell
 python -m venv .venv
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 .\.venv\Scripts\Activate.ps1
 python -m pip install -r requirements.txt
 ```
 
-### macOS/Linux
-
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-python3 -m pip install -r requirements.txt
-```
+Sau đó cấu hình địa chỉ MQTT broker trong các chương trình Python và chạy theo hướng dẫn ở phần trên.
 
 ## 10. Xử lý lỗi thường gặp
 
-### Không tìm thấy lệnh `python`
+### Lỗi `python is not recognized`
 
-- Cài Python 3 từ nguồn phù hợp với hệ điều hành.
-- Trên Windows, chọn tùy chọn **Add Python to PATH** khi cài đặt.
-- Trên macOS/Linux, thử sử dụng `python3`.
+- Cài Python 3.
+- Chọn **Add Python to PATH** khi cài đặt.
+- Đóng và mở lại PowerShell sau khi cài.
 
-### Không kích hoạt được môi trường ảo trên PowerShell
+### Không kích hoạt được `.venv`
 
 Chạy:
 
 ```powershell
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-```
-
-Sau đó chạy lại:
-
-```powershell
 .\.venv\Scripts\Activate.ps1
 ```
 
-### Lỗi `ModuleNotFoundError: No module named 'paho'`
+### Lỗi `No module named 'paho'`
 
-Đảm bảo môi trường ảo đã được kích hoạt và chạy:
+Đảm bảo `.venv` đã được kích hoạt, sau đó chạy:
 
-```bash
+```powershell
 python -m pip install -r requirements.txt
 ```
 
@@ -269,11 +263,21 @@ python -m pip install -r requirements.txt
 
 Kiểm tra:
 
-- Broker đã được khởi động hay chưa.
+- Mosquitto đã được khởi động chưa.
 - Địa chỉ host và cổng có chính xác không.
-- Publisher và Subscriber có dùng cùng broker không.
-- Firewall có chặn cổng MQTT không.
+- Publisher và Subscriber có sử dụng cùng broker không.
+- Windows Defender Firewall có chặn cổng `1883` không.
 - Broker có yêu cầu username, password hoặc TLS không.
+
+### Cổng `1883` đang được sử dụng
+
+Kiểm tra tiến trình đang sử dụng cổng:
+
+```powershell
+netstat -ano | findstr :1883
+```
+
+Nếu Mosquitto đã chạy dưới dạng Windows Service thì không cần mở thêm một tiến trình `mosquitto.exe` khác.
 
 ## 11. Danh sách file cần nộp
 
@@ -289,4 +293,4 @@ requirements.md
 README.md
 ```
 
-Không đưa thư mục `.venv` lên GitHub. Thư mục này đã được khai báo trong `.gitignore` và có thể được tạo lại từ `requirements.txt`.
+Không đưa thư mục `.venv` lên GitHub. Thư mục này đã được khai báo trong `.gitignore` và có thể tạo lại từ `requirements.txt`.
